@@ -1,51 +1,39 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import axios from 'axios'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Users from "./Pages/Users";
+import SignUp from "./Pages/SignUp";
+import Statistics from "./Pages/Statistics";
+import User from "./Pages/User";
+import Games from "./Pages/Games";
+import Game1 from "./Pages/Games/Game1";
+import Game2 from "./Pages/Games/Game2";
+import Game3 from "./Pages/Games/Game3";
+import Game4 from "./Pages/Games/Game4";
+import Game5 from "./Pages/Games/Game5";
+import Nav from "./Nav";
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [array, setArray] = useState<unknown[]>([]);
-
-  const fetchApi = async () => {
-      const response = await axios.get('http://localhost:3000/users');
-      setArray(response.data);
-  };
-  
-  useEffect(() => {
-      fetchApi();
-  }, []);
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <div>
-        {array.map((item: unknown, index: number) => (
-          <div key={index}>{JSON.stringify(item)}</div>
-        ))}
-      </div>
+      <BrowserRouter>
+        <Nav />
+        <Routes>
+          <Route path="/" element={<SignUp />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/user/:id" element={<User />} />
+          <Route path="/statistics" element={<Statistics />} />
+          <Route path="/games" element={<Games />}>
+            {" "}
+            {/* Could be used to route go games/:id where the id is the game id */}
+            <Route path="game1" element={<Game1 />} />
+            <Route path="game2" element={<Game2 />} />
+            <Route path="game3" element={<Game3 />} />
+            <Route path="game4" element={<Game4 />} />
+            <Route path="game5" element={<Game5 />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
