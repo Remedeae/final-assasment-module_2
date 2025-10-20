@@ -9,12 +9,14 @@ import Game2 from "./Pages/Games/Game2";
 import Game3 from "./Pages/Games/Game3";
 import Game4 from "./Pages/Games/Game4";
 import Game5 from "./Pages/Games/Game5";
-import Nav from "./Nav";
+import Nav from "./Components/Nav";
+import Weather from "./Components/Weather";
 
 function App() {
   return (
     <>
       <BrowserRouter>
+        <Weather />
         <Nav />
         <Routes>
           <Route path="/" element={<SignUp />} />
