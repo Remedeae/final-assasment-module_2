@@ -16,6 +16,13 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
+app.get("/user/:id", async (req, res) => {
+  const { id } = req.params;
+  const user = await prisma.user.findUnique({
+    where: { id: Number(id) },
+  });
+});
+
 app.get("/sessions", async (req, res) => {
   const users = await prisma.session.findMany();
   res.json(users);
