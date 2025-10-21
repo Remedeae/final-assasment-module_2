@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useApiFetch } from "../stores/apiFetchStore";
 
 function Users() {
   const navigate = useNavigate();
-  const [array, setArray] = useState<unknown[]>([]);
-
-  const fetchApi = async () => {
-    const response = await axios.get("http://localhost:3000/users");
-    setArray(response.data);
-  };
+  const array = useApiFetch((state) => state.data);
+  const fetchApi = useApiFetch((state) => state.apiFetchAsync);
 
   useEffect(() => {
     fetchApi();
-  }, []);
+  }, [fetchApi]);
   return (
     <div>
       <div>

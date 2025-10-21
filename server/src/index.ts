@@ -16,6 +16,16 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
+app.get("/sessions", async (req, res) => {
+  const users = await prisma.session.findMany();
+  res.json(users);
+});
+
+app.get("/games", async (req, res) => {
+  const users = await prisma.game.findMany();
+  res.json(users);
+});
+
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
 });

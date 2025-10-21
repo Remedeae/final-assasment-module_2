@@ -4,17 +4,19 @@ import SignUp from "./Pages/SignUp";
 import Statistics from "./Pages/Statistics";
 import User from "./Pages/User";
 import Games from "./Pages/Games";
-import Game1 from "./Pages/Games/Game1";
-import Game2 from "./Pages/Games/Game2";
-import Game3 from "./Pages/Games/Game3";
-import Game4 from "./Pages/Games/Game4";
-import Game5 from "./Pages/Games/Game5";
-import Nav from "./Nav";
+import Game1 from "./Pages/games/Game1";
+import Game2 from "./Pages/games/Game2";
+import Game3 from "./Pages/games/Game3";
+import Game4 from "./Pages/games/Game4";
+import Game5 from "./Pages/games/Game5";
+import Nav from "./components/Nav";
+import Weather from "./components/Weather";
 
 function App() {
   return (
     <>
       <BrowserRouter>
+        <Weather />
         <Nav />
         <Routes>
           <Route path="/" element={<SignUp />} />
