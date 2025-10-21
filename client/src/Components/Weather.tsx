@@ -4,7 +4,7 @@ import type {
   WeatherResponse,
   WeatherIconType,
   GeoCodingResponse,
-} from "../Types/weatherTypes";
+} from "../types/weatherTypes";
 
 function Weather() {
   const [location, setLocation] = useState<string>(() => {
