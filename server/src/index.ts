@@ -1,7 +1,9 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
 import cors, { CorsOptions } from "cors";
+import { paramIdSchema } from "./validator";
+
+const prisma = new PrismaClient();
 
 const corsOptions: CorsOptions = {
   origin: ["http://localhost:5173"],
@@ -17,10 +19,25 @@ app.get("/users", async (req, res) => {
 });
 
 app.get("/user/:id", async (req, res) => {
-  const { id } = req.params;
-  const user = await prisma.user.findUnique({
-    where: { id: Number(id) },
-  });
+  const userId = parseInt(req.params.id);
+  const validatedUserId = paramIdSchema.safeParse(userId);
+  if (!validatedUserId.success) {
+    res.status(400).json({
+      message: "Invalid user id request",
+      error: validatedUserId.error,
+    });
+  }
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: validatedUserId.data },
+    });
+    if (user === null) {
+      res.status(404).json("User not found");
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 app.get("/sessions", async (req, res) => {
