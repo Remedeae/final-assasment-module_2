@@ -236,23 +236,11 @@ function Weather() {
 
     return weatherMap[code] ?? "Unknown weather code";
   }
-
-  function getTimeFromISO(isoString: string): string {
-    return isoString.split("T")[1];
-  }
-
   return (
     <div className="weather">
       <div className="weather__main">
-        <h2>
-          <i className="fa-solid fa-cloud-sun"></i>Weather
-        </h2>
+        <h2>Weather</h2>
         <div>
-          {weather && weather.current && (
-            <p className="time">
-              Local time: {`${getTimeFromISO(weather.current.time)}`}
-            </p>
-          )}
           <div>
             <input
               type="text"
@@ -268,18 +256,11 @@ function Weather() {
                 className={
                   weatherCodeToText(weather.current.weather_code).icon.icon
                 }
-                style={{
-                  color: weatherCodeToText(weather.current.weather_code).icon
-                    .color,
-                }}
               ></i>
               {weather.current.temperature_2m}{" "}
               {weather.current_units.temperature_2m}
               <br></br>
             </h1>
-          )}
-          {weather && weather.current && (
-            <p>{weatherCodeToText(weather.current.weather_code).weather}</p>
           )}
         </div>
         <p>{error}</p>

@@ -18,9 +18,6 @@ function Games() {
       <div onClick={() => navigate("/game4")}>
         <h2>Game4</h2>
       </div>
-      <div onClick={() => navigate("/game5")}>
-        <h2>Game5</h2>
-      </div>
     </div>
   );
 }
