@@ -8,7 +8,7 @@ function Users() {
   const fetchApi = useApiFetch((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    fetchApi();
+    fetchApi("get", "users"); //fetches using get and the /users page
   }, [fetchApi]);
   return (
     <div>
