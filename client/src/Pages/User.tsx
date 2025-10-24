@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useApiFetch } from "../stores/apiFetchStore";
+import type { User } from "../types/tableTypes";
 
 function User() {
   const { id } = useParams();
-  const array = useApiFetch((state) => state.data);
+  const user = useApiFetch((state) => state.data as User | null); //here we call the type of data
+  const error = useApiFetch((state) => state.error);
   const fetchApi = useApiFetch((state) => state.apiFetchAsync);
 
   useEffect(() => {
@@ -13,16 +15,11 @@ function User() {
       `user/${id}`
     ); //fetches localhost:3000/user/:id
   }, [fetchApi]);
-  console.log(array);
+  console.log(user);
   return (
     <div>
       <h1>User id: {id} </h1>
-      {/*       <h2>{array[0]}</h2> */}
-      <div>
-        {array.map((item: unknown, index: number) => (
-          <div key={index}>{JSON.stringify(item)}</div>
-        ))}
-      </div>
+      {error ? <p>{error}</p> : <h2>{user?.firstName}</h2>}
     </div>
   );
 }

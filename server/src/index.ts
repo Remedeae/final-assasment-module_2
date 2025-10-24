@@ -22,7 +22,7 @@ app.get("/user/:id", async (req, res) => {
   const userId = parseInt(req.params.id);
   const validatedUserId = paramIdSchema.safeParse(userId);
   if (!validatedUserId.success) {
-    res.status(400).json({
+    res.status(400).send({
       message: "Invalid user id request",
       error: validatedUserId.error,
     });
@@ -32,7 +32,7 @@ app.get("/user/:id", async (req, res) => {
       where: { id: validatedUserId.data },
     });
     if (user === null) {
-      res.status(404).json("User not found");
+      res.status(404).send("User not found");
     }
     res.json(user);
   } catch (error) {

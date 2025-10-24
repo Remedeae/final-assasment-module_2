@@ -1,20 +1,34 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApiFetch } from "../stores/apiFetchStore";
+import type { User } from "../types/tableTypes";
+import defaultPic from "../assets/20181202-_M7A7061.jpg";
 
 function Users() {
   const navigate = useNavigate();
-  const array = useApiFetch((state) => state.data);
+  const users = useApiFetch((state) => state.data as User[] | null); //Here we call the type of our data
+  const error = useApiFetch((state) => state.error);
   const fetchApi = useApiFetch((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    fetchApi("get", "users"); //fetches using get and the /users page
+    fetchApi<User[]>("get", "users"); //fetches using get and the /users page
   }, [fetchApi]);
+  if (error) {
+    return <p>{error}</p>;
+  }
   return (
     <div>
       <div>
-        {array.map((item: unknown, index: number) => (
-          <div key={index}>{JSON.stringify(item)}</div>
+        {users?.map((user) => (
+          <div key={user.id}>
+            <img
+              src={user.profilePic ? user.profilePic : defaultPic}
+              alt="Profile picture"
+            />
+            <p>
+              {user.firstName} {user.lastName} {user.email}
+            </p>
+          </div>
         ))}
       </div>
       <button onClick={() => navigate("/")}>Add user</button>
