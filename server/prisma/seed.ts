@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-//for date manipulations
+/* //for date manipulations
 const minutes = (n: number) => n * 60 * 1000;
 function addMinutes(d: Date, m: number) {
   return new Date(d.getTime() + minutes(m));
@@ -31,61 +31,61 @@ async function main() {
         email: "user1@example.com",
         firstName: "Sanna-Maya",
         lastName: "Blomdahl",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user2@example.com",
         firstName: "Pesh",
         lastName: "May",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user3@example.com",
         firstName: "Michiel",
         lastName: "Gragt",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user4@example.com",
         firstName: "Diana",
         lastName: "Davis",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user5@example.com",
         firstName: "Ethan",
         lastName: "Edwards",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user6@example.com",
         firstName: "Fiona",
         lastName: "Foster",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user7@example.com",
         firstName: "George",
         lastName: "Garcia",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user8@example.com",
         firstName: "Hannah",
         lastName: "Hughes",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user9@example.com",
         firstName: "Ian",
         lastName: "Iverson",
-        profilePicture: null,
+        profilePic: null,
       },
       {
         email: "user10@example.com",
         firstName: "Julia",
         lastName: "Johnson",
-        profilePicture: null,
+        profilePic: null,
       },
     ],
   });
@@ -93,10 +93,10 @@ async function main() {
   // 3) Create 4 games
   await prisma.game.createMany({
     data: [
-      { title: "Game 1" },
-      { title: "Game 2" },
-      { title: "Game 3" },
-      { title: "Game 4" },
+      { name: "Game 1" },
+      { name: "Game 2" },
+      { name: "Game 3" },
+      { name: "Game 4" },
     ],
   });
 
@@ -182,3 +182,81 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+ */
+
+async function seed() {
+  await prisma.user.createMany({
+    data: [
+      {
+        email: "user1@example.com",
+        firstName: "Sanna-Maya",
+        lastName: "Blomdahl",
+        profilePic: null,
+      },
+      {
+        email: "user2@example.com",
+        firstName: "Pesh",
+        lastName: "May",
+        profilePic: null,
+      },
+      {
+        email: "user3@example.com",
+        firstName: "Michiel",
+        lastName: "Gragt",
+        profilePic: null,
+      },
+      {
+        email: "user4@example.com",
+        firstName: "Diana",
+        lastName: "Davis",
+        profilePic: null,
+      },
+      {
+        email: "user5@example.com",
+        firstName: "Ethan",
+        lastName: "Edwards",
+        profilePic: null,
+      },
+      {
+        email: "user6@example.com",
+        firstName: "Fiona",
+        lastName: "Foster",
+        profilePic: null,
+      },
+      {
+        email: "user7@example.com",
+        firstName: "George",
+        lastName: "Garcia",
+        profilePic: null,
+      },
+      {
+        email: "user8@example.com",
+        firstName: "Hannah",
+        lastName: "Hughes",
+        profilePic: null,
+      },
+      {
+        email: "user9@example.com",
+        firstName: "Ian",
+        lastName: "Iverson",
+        profilePic: null,
+      },
+      {
+        email: "user10@example.com",
+        firstName: "Julia",
+        lastName: "Johnson",
+        profilePic: null,
+      },
+    ],
+  });
+  await prisma.game.createMany({
+    data: [
+      { name: "Kitten Watch" },
+      { name: "Watch the Kitten" },
+      { name: "Forest Meditation" },
+      { name: "The Staring Contest" },
+    ],
+  });
+}
+
+seed().then(() => prisma.$disconnect);
