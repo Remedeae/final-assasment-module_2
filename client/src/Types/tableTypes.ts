@@ -15,3 +15,8 @@ export type SessionSchema = {
   minutes?: number;
   createdAt?: string;
 };
+
+export type GameSchema = {
+  id: number;
+  name: string;
+};
