@@ -7,3 +7,11 @@ export type UserSchema = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type SessionSchema = {
+  id?: number;
+  userId: number;
+  gameId: number;
+  minutes?: number;
+  createdAt?: string;
+};
