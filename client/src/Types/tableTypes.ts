@@ -11,8 +11,8 @@ export type UserSchema = {
 export type SessionSchema = {
   id?: number;
   userId: number;
-  gameId: number;
-  minutes?: number;
+  gameId?: number;
+  minutes: number;
   createdAt?: string;
 };
 

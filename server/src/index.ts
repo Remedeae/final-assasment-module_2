@@ -89,7 +89,7 @@ app.post("/game/:id", async (req, res) => {
       data: validatedNewSession.data,
     });
     res.status(201).send({
-      message: "New session successfully startd",
+      message: "New session successfully created!",
       session: newSession,
     });
   } catch (error) {

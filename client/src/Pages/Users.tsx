@@ -1,14 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApiFetch } from "../stores/apiFetchStore";
+import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
 import defaultPic from "../assets/20181202-_M7A7061.jpg";
 
+const useFetchUsers = createApiFetch();
+
 function Users() {
   const navigate = useNavigate();
-  const users = useApiFetch((state) => state.data as UserSchema[] | null); //Here we call the type of our data
-  const error = useApiFetch((state) => state.error);
-  const fetchApi = useApiFetch((state) => state.apiFetchAsync);
+  const users = useFetchUsers((state) => state.data as UserSchema[] | null); //Here we call the type of our data
+  const error = useFetchUsers((state) => state.error);
+  const fetchApi = useFetchUsers((state) => state.apiFetchAsync);
 
   useEffect(() => {
     fetchApi<UserSchema[]>("get", "users"); //fetches using get and the /users page
