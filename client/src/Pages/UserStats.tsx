@@ -1,21 +1,23 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useApiFetch } from "../stores/apiFetchStore";
+import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
 import defaultPic from "../assets/20181202-_M7A7061.jpg";
 
+const fetchUser = createApiFetch();
+
 function UserStats() {
   const { id } = useParams();
-  const user = useApiFetch((state) => state.data as UserSchema | null); //here we call the type of data
-  const error = useApiFetch((state) => state.error);
-  const fetchApi = useApiFetch((state) => state.apiFetchAsync);
+  const user = fetchUser((state) => state.data as UserSchema | null); //here we call the type of data
+  const error = fetchUser((state) => state.error);
+  const getUser = fetchUser((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    fetchApi(
+    getUser(
       "get", //fetches with get
       `user/${id}`
     ); //fetches localhost:3000/user/:id
-  }, [fetchApi, id]); //re-renders if the fetch or id changes
+  }, [getUser, id]); //re-renders if the fetch or id changes
   console.log(user);
   if (error) {
     return <p>{error}</p>;
