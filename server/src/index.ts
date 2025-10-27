@@ -1,7 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors, { CorsOptions } from "cors";
-import { paramIdSchema, sessionSchema } from "./validator";
+import { paramIdSchema, sessionSchema, stringSchema } from "./validator";
 
 const prisma = new PrismaClient();
 
@@ -39,6 +39,38 @@ app.get("/user/:id", async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+//vvv not functional atm vvv
+app.get("/search", async (req, res) => {
+  const { q } = req.query;
+  try {
+    const validatedQuery = stringSchema.safeParse(q);
+    if (!validatedQuery.success) {
+      return res.status(400).send("Invalid search term");
+    }
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          { firstName: { contains: validatedQuery.data, mode: "insensitive" } },
+          { lastName: { contains: validatedQuery.data, mode: "insensitive" } },
+          //{ email: { contains: validatedQuery.data, mode: "insensitive" } },
+        ],
+      },
+    });
+    if (users.length === 0) {
+      return res.status(400).send("No user matches the search");
+    }
+    return res.status(200).send(users);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
 app.get("/game/:id", async (req, res) => {
   const gameId = parseInt(req.params.id);
   const validatedGameId = paramIdSchema.safeParse(gameId);
@@ -52,12 +84,12 @@ app.get("/game/:id", async (req, res) => {
       where: { id: validatedGameId.data },
     });
     if (!game) {
-      return res.status(404).send("Game not found");
+      res.status(404).send("Game not found");
     }
     res.status(200).send(game);
   } catch (error) {
     if (error instanceof Error) {
-      return res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
     res.status(500).send("Unkonw Error");
   } finally {

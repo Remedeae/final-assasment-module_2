@@ -7,6 +7,9 @@ const usePostSession = createApiFetch();
 
 function Timer() {
   const { id } = useParams();
+  const placeholderUserId = 1;
+  const userId = placeholderUserId;
+
   const navigate = useNavigate();
 
   const [timePlayed, setTimePlayed] = useState(0);
@@ -39,7 +42,7 @@ function Timer() {
   const handlePostSession = async () => {
     handleTimerStatus();
     const newSession = await postSession<SessionSchema>("post", `game/${id}`, {
-      userId: 1,
+      userId: { userId },
       gameId: id,
       minutes: timePlayed,
     });

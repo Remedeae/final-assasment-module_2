@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
-import defaultPic from "../assets/20181202-_M7A7061.jpg";
+import defaultPic from "../assets/user.png";
 
 const fetchUser = createApiFetch();
 
@@ -18,7 +18,7 @@ function UserStats() {
       `user/${id}`
     ); //fetches localhost:3000/user/:id
   }, [getUser, id]); //re-renders if the fetch or id changes
-  console.log(user);
+  //console.log(user);
   if (error) {
     return <p>{error}</p>;
   }
