@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
-import defaultPic from "../assets/20181202-_M7A7061.jpg";
+import defaultPic from "../assets/user.png";
 
 const useFetchUsers = createApiFetch();
 
