@@ -1,25 +1,48 @@
 import { useState } from "react";
+import { createApiFetch } from "../stores/apiFetchStore";
+import type { UserSchema } from "../types/tableTypes";
+import { useNavigate } from "react-router-dom";
+
+const usePostNewUser = createApiFetch();
 
 function SignUp() {
-  const [email, setEmail] = useState<string>();
-  const [firstName, setFirstName] = useState<string>();
-  const [lastName, setLastName] = useState<string>();
+  const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    // post info to player table, await and return the info from the new player, admit to local storage
+  const [email, setEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+
+  //const user = usePostNewUser((state) => state.data as UserSchema | null);
+  const error = usePostNewUser((state) => state.error);
+  const postNewUser = usePostNewUser((state) => state.apiFetchAsync);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await postNewUser<{ message: string; user: UserSchema }>(
+        "post",
+        "signup",
+        {
+          email: email?.toLocaleLowerCase(),
+          firstName: firstName,
+          lastName: lastName,
+        }
+      );
+      const newUser = response?.user;
+      console.log(newUser);
+      if (newUser) {
+        localStorage.clear();
+        localStorage.setItem("activeUser", JSON.stringify(newUser));
+        navigate(`/user/${newUser.id}`);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <div>
+      {error && <h2>{error}</h2>}
       <h2>Sign up here</h2>
-      <form>
-        <label htmlFor="email">E-mail</label>
-        <input
-          type="text"
-          id="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <div>
         <label htmlFor="firstName">First name</label>
         <input
           type="text"
@@ -36,8 +59,16 @@ function SignUp() {
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
         />
-        <button onClick={handleSubmit}>Send to back end + local storage</button>
-      </form>
+        <label htmlFor="email">E-mail</label>
+        <input
+          type="text"
+          id="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button onClick={handleSubmit}>Submit</button>
+      </div>
     </div>
   );
 }
