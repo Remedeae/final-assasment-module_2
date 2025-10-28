@@ -1,7 +1,12 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors, { CorsOptions } from "cors";
-import { paramIdSchema, sessionSchema, stringSchema } from "./validator";
+import {
+  newUserSchema,
+  paramIdSchema,
+  sessionSchema,
+  stringSchema,
+} from "./validator";
 
 const prisma = new PrismaClient();
 
@@ -16,6 +21,28 @@ app.use(cors(corsOptions));
 app.get("/users", async (req, res) => {
   const users = await prisma.user.findMany();
   res.json(users);
+});
+
+app.post("/signup", async (req, res) => {
+  try {
+    const validatedNewUser = newUserSchema.safeParse(req.body);
+    if (!validatedNewUser.success) {
+      return res
+        .status(400)
+        .send({ message: "Invalid input", error: validatedNewUser.error });
+    }
+    const newUser = await prisma.user.create({
+      data: validatedNewUser.data,
+    });
+    res.status(200).send({ message: "User successfully added", user: newUser });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
 });
 
 app.get("/user/:id", async (req, res) => {
@@ -36,7 +63,12 @@ app.get("/user/:id", async (req, res) => {
     }
     res.status(200).send(user);
   } catch (error) {
-    res.status(500).send(error);
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
   }
 });
 
@@ -91,7 +123,7 @@ app.get("/game/:id", async (req, res) => {
     if (error instanceof Error) {
       res.status(500).send(error.message);
     }
-    res.status(500).send("Unkonw Error");
+    res.status(500).send("Error unknown");
   } finally {
     await prisma.$disconnect();
   }

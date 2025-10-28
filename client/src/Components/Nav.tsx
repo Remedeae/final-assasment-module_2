@@ -1,8 +1,19 @@
 import { Link } from "react-router-dom";
+import type { UserSchema } from "../types/tableTypes";
+import { useEffect, useState } from "react";
 
 function Nav() {
-  const placeholderUserId = 3; //Grab from local storage
-  const profileNavLink = `/user/${placeholderUserId}`;
+  const [activeUserId, setActiveUser] = useState<number>(1);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("activeUser");
+    if (storedUser !== null) {
+      const activeUser: UserSchema = JSON.parse(storedUser);
+      setActiveUser(activeUser.id);
+    }
+  }, []);
+
+  const profileNavLink = `/user/${activeUserId}`;
   return (
     <div>
       <ul>
