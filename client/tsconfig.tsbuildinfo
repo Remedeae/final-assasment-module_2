@@ -1,0 +1,1 @@
+{"root":["./src/api.ts","./src/main.tsx","./src/ui/app.tsx","./src/ui/components/weather.tsx","./src/ui/pages/choosegamepage.tsx","./src/ui/pages/playpage.tsx","./src/ui/pages/profilepage.tsx","./src/ui/pages/statspage.tsx","./src/ui/pages/userdetailpage.tsx","./src/ui/pages/userspage.tsx"],"errors":true,"version":"5.9.3"}
