@@ -1,0 +1,47 @@
+.box {
+  width: 360px;
+  height: 520px;
+  position: relative;
+  background: #252525;
+  padding: 5px;
+  overflow: hidden;
+  z-index: 5;
+  transition: 0.5s;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  color: #fff;
+}
+
+.center {
+  min-height: calc(100vh - 4rem);
+  display: grid;
+  place-items: center;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-align: center;
+  margin: 14px 0 6px;
+}
+
+.buttonBox {
+  width: 220px;
+  margin: 35px auto 30px auto;
+  position: relative;
+  border-radius: 30px;
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+}
+
+.field {
+  border: 1px solid #444;
+  background: #1e1e1e;
+  color: #eaeaea;
+}
+
+.field::placeholder {
+  color: #9aa0a6;
+}
