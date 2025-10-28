@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
 import { createApiFetch } from "../stores/apiFetchStore";
 import { useNavigate, useParams } from "react-router-dom";
-import type { SessionSchema } from "../types/tableTypes";
+import type { SessionSchema, UserSchema } from "../types/tableTypes";
 
 const usePostSession = createApiFetch();
 
 function Timer() {
   const { id } = useParams();
-  const placeholderUserId = 1;
-  const userId = placeholderUserId;
-
   const navigate = useNavigate();
 
   const [timePlayed, setTimePlayed] = useState(0);
   const [timerStatus, setTimerStatus] = useState(true);
   const [timerStatusMsg, setTimerStatusMsg] = useState("STOP");
 
+  const [activeUser, setActiveUser] = useState<UserSchema | null>();
+
   //const session = usePostSession((state) => state.data as SessionSchema | null); //here we call the type of data
   const error = usePostSession((state) => state.error);
   const postSession = usePostSession((state) => state.apiFetchAsync);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("activeUser");
+    if (storedUser !== null) {
+      const data: UserSchema = JSON.parse(storedUser);
+      setActiveUser(data);
+    }
+  }, []);
 
   useEffect(() => {
     let i: number;
@@ -29,6 +36,7 @@ function Timer() {
     }
     return () => clearInterval(i);
   }, [timerStatus]);
+
   const handleTimerStatus = () => {
     if (timerStatus) {
       setTimerStatus(false);
@@ -42,9 +50,9 @@ function Timer() {
   const handlePostSession = async () => {
     handleTimerStatus();
     const newSession = await postSession<SessionSchema>("post", `game/${id}`, {
-      userId: { userId },
+      userId: activeUser?.id,
       gameId: id,
-      minutes: timePlayed,
+      timePlayed: timePlayed,
     });
     if (!newSession) {
       return;

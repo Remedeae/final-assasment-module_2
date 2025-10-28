@@ -18,6 +18,8 @@ const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
 
+//Users functions----------------------------------
+
 app.get("/users", async (req, res) => {
   const users = await prisma.user.findMany();
   res.json(users);
@@ -72,7 +74,6 @@ app.get("/user/:id", async (req, res) => {
   }
 });
 
-//vvv not functional atm vvv
 app.get("/search", async (req, res) => {
   const { q } = req.query;
   try {
@@ -85,7 +86,7 @@ app.get("/search", async (req, res) => {
         OR: [
           { firstName: { contains: validatedQuery.data, mode: "insensitive" } },
           { lastName: { contains: validatedQuery.data, mode: "insensitive" } },
-          //{ email: { contains: validatedQuery.data, mode: "insensitive" } },
+          { email: { contains: validatedQuery.data, mode: "insensitive" } },
         ],
       },
     });
@@ -102,6 +103,120 @@ app.get("/search", async (req, res) => {
     await prisma.$disconnect();
   }
 });
+
+//Statistics functions----------------------------------
+//Get time played for each game by userId
+app.get("/user/:id/allGames", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const validateUserId = paramIdSchema.safeParse(userId);
+  if (!validateUserId.success) {
+    return res
+      .status(400)
+      .send({ message: "Invalid url", error: validateUserId.error });
+  }
+  try {
+    const sessionSums = await prisma.session.groupBy({
+      by: ["gameId"],
+      where: { userId: validateUserId.data },
+      _sum: { timePlayed: true },
+    });
+
+    const gameIds = sessionSums.map((s) => s.gameId);
+
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, name: true },
+    });
+
+    const data = sessionSums.map((s) => ({
+      gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
+      totalTime: s._sum.timePlayed ?? 0,
+    }));
+    res.status(200).send(data);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+//Get percentage played for each game by userId
+app.get("/user/:id/percentTime", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const validateUserId = paramIdSchema.safeParse(userId);
+  if (!validateUserId.success) {
+    return res
+      .status(400)
+      .send({ message: "Invalid url", error: validateUserId.error });
+  }
+  try {
+    const total = await prisma.session.aggregate({
+      where: { userId: validateUserId.data },
+      _sum: { timePlayed: true },
+    });
+    const sessionSums = await prisma.session.groupBy({
+      by: ["gameId"],
+      where: { userId: validateUserId.data },
+      _sum: { timePlayed: true },
+    });
+    const totalMinutes = total._sum.timePlayed ?? 0;
+    const sessionPercentage = sessionSums.map((s) => ({
+      gameId: s.gameId,
+      percent:
+        totalMinutes > 0 ? ((s._sum.timePlayed ?? 0) / totalMinutes) * 100 : 0,
+    }));
+
+    const gameIds = sessionSums.map((s) => s.gameId);
+
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, name: true },
+    });
+
+    const data = sessionPercentage.map((s) => ({
+      gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
+      percentPlayed: s.percent,
+    }));
+    res.status(200).send(data);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+//Get total time played by userId
+app.get("/user/:id/totalTime", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const validateUserId = paramIdSchema.safeParse(userId);
+  if (!validateUserId.success) {
+    return res
+      .status(400)
+      .send({ message: "Invalid url", error: validateUserId.error });
+  }
+  try {
+    const time = await prisma.session.aggregate({
+      where: { userId: validateUserId.data },
+      _sum: { timePlayed: true },
+    });
+    const data = time._sum.timePlayed ?? 0;
+    res.status(200).send(data);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+//Game functions----------------------------------
 
 app.get("/game/:id", async (req, res) => {
   const gameId = parseInt(req.params.id);
@@ -129,6 +244,13 @@ app.get("/game/:id", async (req, res) => {
   }
 });
 
+app.get("/games", async (req, res) => {
+  const users = await prisma.game.findMany();
+  res.json(users);
+});
+
+//Sessions functions----------------------------------
+
 app.post("/game/:id", async (req, res) => {
   const gameId = parseInt(req.params.id);
   const validatedGameId = paramIdSchema.safeParse(gameId);
@@ -141,7 +263,7 @@ app.post("/game/:id", async (req, res) => {
     const validatedNewSession = sessionSchema.safeParse({
       userId: req.body.userId,
       gameId: gameId,
-      minutes: req.body.minutes || 0,
+      timePlayed: req.body.timePlayed,
     });
     if (!validatedNewSession.success) {
       return res.status(400).send({
@@ -168,11 +290,6 @@ app.post("/game/:id", async (req, res) => {
 
 app.get("/sessions", async (req, res) => {
   const users = await prisma.session.findMany();
-  res.json(users);
-});
-
-app.get("/games", async (req, res) => {
-  const users = await prisma.game.findMany();
   res.json(users);
 });
 
