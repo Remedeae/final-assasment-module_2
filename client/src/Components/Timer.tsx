@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+//import { useEffect} from "react";
+import { useState } from "react";
 import { createApiFetch } from "../stores/apiFetchStore";
 import { useNavigate, useParams } from "react-router-dom";
 import type { SessionSchema } from "../types/tableTypes";
@@ -12,7 +13,7 @@ function Timer() {
 
   const navigate = useNavigate();
 
-  const [timePlayed, setTimePlayed] = useState(0);
+  //const [timePlayed, setTimePlayed] = useState(0);
   const [timerStatus, setTimerStatus] = useState(true);
   const [timerStatusMsg, setTimerStatusMsg] = useState("STOP");
 
@@ -20,7 +21,7 @@ function Timer() {
   const error = usePostSession((state) => state.error);
   const postSession = usePostSession((state) => state.apiFetchAsync);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     let i: number;
     if (timerStatus) {
       i = setInterval(() => {
@@ -28,7 +29,7 @@ function Timer() {
       }, 1000);
     }
     return () => clearInterval(i);
-  }, [timerStatus]);
+  }, [timerStatus]); */
   const handleTimerStatus = () => {
     if (timerStatus) {
       setTimerStatus(false);
@@ -44,7 +45,7 @@ function Timer() {
     const newSession = await postSession<SessionSchema>("post", `game/${id}`, {
       userId: { userId },
       gameId: id,
-      minutes: timePlayed,
+      //  minutes: timePlayed,
     });
     if (!newSession) {
       return;
@@ -62,7 +63,7 @@ function Timer() {
     <div className="timer">
       <div>
         <h2>Minutes played:</h2>
-        <h2>{timePlayed}</h2>
+        {/*         <h2>{timePlayed}</h2> */}
       </div>
       <button onClick={handleTimerStatus}>{timerStatusMsg}</button>
       <button onClick={handlePostSession}>Save and Exit</button>

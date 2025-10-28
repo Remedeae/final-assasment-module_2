@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { UserSchema } from "../types/tableTypes";
-import defaultPic from "../assets/user.png";
+//import defaultPic from "../assets/user.png";
 
 function ActiveUser() {
   const [activeUser, setActiveUser] = useState<UserSchema>();
@@ -14,10 +14,10 @@ function ActiveUser() {
   if (activeUser) {
     return (
       <div>
-        <img
+{/*         <img
           src={activeUser.profilePic ? activeUser.profilePic : defaultPic}
           alt="Profile picture"
-        />
+        /> */}
         <p>{activeUser.firstName}</p>
       </div>
     );
