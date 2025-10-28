@@ -6,20 +6,17 @@ function Games() {
     <div>
       <h1>Games</h1>
 
-      <div onClick={() => navigate("/game1")}>
+      <div onClick={() => navigate("/game/1")}>
         <h2>Game1</h2>
       </div>
-      <div onClick={() => navigate("/game2")}>
+      <div onClick={() => navigate("/game/2")}>
         <h2>Game2</h2>
       </div>
-      <div onClick={() => navigate("/game3")}>
+      <div onClick={() => navigate("/game/3")}>
         <h2>Game3</h2>
       </div>
-      <div onClick={() => navigate("/game4")}>
+      <div onClick={() => navigate("/game/4")}>
         <h2>Game4</h2>
-      </div>
-      <div onClick={() => navigate("/game5")}>
-        <h2>Game5</h2>
       </div>
     </div>
   );
