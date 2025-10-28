@@ -3,24 +3,34 @@ import { useParams } from "react-router-dom";
 import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
 import defaultPic from "../assets/user.png";
+import UserAllGames from "../components/graphs/UserGraphs/AllGames";
+import UserPercentTime from "../components/graphs/UserGraphs/PercentTime";
 
-const fetchUser = createApiFetch();
+const useFetchUser = createApiFetch();
+const useFetchTimePlayed = createApiFetch();
 
 function UserStats() {
   const { id } = useParams();
-  const user = fetchUser((state) => state.data as UserSchema | null); //here we call the type of data
-  const error = fetchUser((state) => state.error);
-  const getUser = fetchUser((state) => state.apiFetchAsync);
+
+  const user = useFetchUser((state) => state.data as UserSchema | null); //here we call the type of data
+  const userError = useFetchUser((state) => state.error);
+  const getUser = useFetchUser((state) => state.apiFetchAsync);
+
+  const time = useFetchTimePlayed((state) => state.data as number);
+  const timeError = useFetchTimePlayed((state) => state.error);
+  const getTimePlayed = useFetchTimePlayed((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    getUser(
-      "get", //fetches with get
-      `user/${id}`
-    ); //fetches localhost:3000/user/:id
-  }, [getUser, id]); //re-renders if the fetch or id changes
-  //console.log(user);
-  if (error) {
-    return <p>{error}</p>;
+    getUser("get", `user/${id}`);
+    getTimePlayed("get", `user/${id}/totalTime`);
+  }, [getUser, getTimePlayed, id]);
+  //console.log(time);
+
+  if (userError) {
+    return <p>{userError}</p>;
+  }
+  if (timeError) {
+    return <p>{timeError}</p>;
   }
   if (user) {
     return (
@@ -34,9 +44,13 @@ function UserStats() {
             {user.firstName} {user.lastName}
           </h2>
         </div>
-        <div className="userStats__timePlayed"></div>
-        <div className="userStats__percentPlayed"></div>
-        <div className="userStats__totalTime"></div>
+        <UserAllGames />
+        <UserPercentTime />
+        <div className="userStats__totalTime">
+          <p>
+            {user.firstName} have played for a total of {time} minutes
+          </p>
+        </div>
         <div className="userStats__sessions"></div>
         <div className="userStats__allPlayers"></div>
       </div>

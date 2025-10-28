@@ -24,7 +24,7 @@ function Game() {
       `game/${id}`
     ); //fetches localhost:3000/game/:id
   }, [getGame, id]); //re-renders if the fetch or id changes
-  console.log(gameData);
+  //console.log(gameData);
   if (getError) {
     return <p>{getError}</p>;
   }
@@ -33,12 +33,12 @@ function Game() {
       gameData.name === "Watch the Kitten"
         ? watchKitten
         : gameData.name === "Kitten Watch"
-        ? kittenWatch
-        : gameData.name === "Forest Meditation"
-        ? forest
-        : gameData.name === "The Staring Contest"
-        ? stare
-        : undefined;
+          ? kittenWatch
+          : gameData.name === "Forest Meditation"
+            ? forest
+            : gameData.name === "The Staring Contest"
+              ? stare
+              : undefined;
     return (
       <div className="gameBody">
         <img src={gamePic} alt="Game picture" />

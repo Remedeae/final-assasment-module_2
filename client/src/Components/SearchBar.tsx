@@ -15,8 +15,8 @@ function SearchBar() {
   const getUsers = useFetchSearch((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    getUsers("get", `search?q=${search}`);
     if (search !== "") {
+      getUsers("get", `search?q=${search}`);
       setDisplayResults("");
     } else {
       setDisplayResults("hideResults");

@@ -6,7 +6,7 @@ export const stringSchema = z.string();
 export const sessionSchema = z.object({
   userId: z.number(),
   gameId: z.number(),
-  minutes: z.number().default(0),
+  timePlayed: z.number().default(0),
 });
 
 export const newUserSchema = z.object({

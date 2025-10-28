@@ -22,7 +22,7 @@ export type SessionSchema = {
   id?: number;
   userId: number;
   gameId?: number;
-  minutes: number;
+  timePlayed: number;
   createdAt?: string;
 };
 

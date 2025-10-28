@@ -22,7 +22,7 @@ function Users() {
     <div>
       <div>
         {users?.map((user) => (
-          <div key={user.id}>
+          <div key={user.id} onClick={() => navigate(`/user/${user.id}`)}>
             <img
               src={user.profilePic ? user.profilePic : defaultPic}
               alt="Profile picture"
