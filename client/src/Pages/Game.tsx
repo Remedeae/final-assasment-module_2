@@ -7,6 +7,7 @@ import kittenWatch from "../assets/gamePic/kitten-watch-icon.jpg";
 import watchKitten from "../assets/gamePic/watch-the-kitten-icon.jpg";
 import forest from "../assets/gamePic/forest-meditation-icon.jpg";
 import stare from "../assets/gamePic/stare-contest-icon.jpg";
+import ActiveUser from "../components/ActiveUser";
 
 const useGetGame = createApiFetch();
 
@@ -43,6 +44,7 @@ function Game() {
         <img src={gamePic} alt="Game picture" />
         <h2>{gameData.name}</h2>
         <Timer />
+        <ActiveUser />
       </div>
     );
   }
