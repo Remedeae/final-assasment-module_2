@@ -13,3 +13,8 @@ export type LeaderBoardSchema = {
   game: string;
   timePlayed: number;
 };
+
+export type UserSessionSchema = {
+  numSessions: number;
+  avgSession: number;
+};

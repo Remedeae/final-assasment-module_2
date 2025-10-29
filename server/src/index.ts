@@ -243,7 +243,7 @@ app.get("/allusers/timePlayed", async (req, res) => {
     await prisma.$disconnect();
   }
 });
-//Get Leader Board---------------------------------
+//Get time played by all users per game---------------------------------
 app.get("/allusers/timePlayed", async (req, res) => {
   try {
     const sessionSums = await prisma.session.groupBy({
@@ -365,36 +365,37 @@ app.get("/sessions", async (req, res) => {
   const users = await prisma.session.findMany();
   res.json(users);
 });
-//Get session data for user
-app.get("/user/:userId/sessions/:gameId", async (req, res) => {
+//Get session data for all users
+app.get("/sessions/:gameId", async (req, res) => {
   const gameId = parseInt(req.params.gameId);
   const validatedGameId = paramIdSchema.safeParse(gameId);
   if (!validatedGameId.success) {
-    res
-      .status(400)
-      .send({ message: "Invalid url", error: validatedGameId.error });
-  }
-  const userId = parseInt(req.params.userId);
-  const validatedUserId = paramIdSchema.safeParse(userId);
-  if (!validatedUserId.success) {
-    res.status(500).send({
-      message: "Invalid game ID input",
-      error: validatedUserId.error,
+    res.status(400).send({
+      message: "GameId is of invalid data type",
+      error: validatedGameId.error,
     });
   }
   try {
     const countSession = await prisma.session.groupBy({
-      by: ["gameId"],
+      by: ["userId"],
       _count: {
         id: true,
       },
+      _avg: {
+        timePlayed: true,
+      },
       where: {
         gameId: validatedGameId.data,
-        userId: validatedUserId.data,
       },
     });
-    //make this into a proper object, call avarage session length
-    res.status(201).send(countSession);
+    if (countSession.length === 0) {
+      return res.status(404).send("Game not found");
+    }
+    const sessionsData = countSession.map((s) => ({
+      numSessions: s._count.id,
+      avgSession: parseInt(s._avg.timePlayed?.toFixed(0)!),
+    }));
+    res.status(201).send(sessionsData);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -404,6 +405,53 @@ app.get("/user/:userId/sessions/:gameId", async (req, res) => {
     await prisma.$disconnect();
   }
 });
+//Weekly sessions (incomplete)--------------------------------------------
+app.get("/sessions/:gameId/weekly", async (req, res) => {
+  const gameId = parseInt(req.params.gameId);
+  const validatedGameId = paramIdSchema.safeParse(gameId);
+  if (!validatedGameId.success) {
+    res.status(400).send({
+      message: "GameId is of invalid data type",
+      error: validatedGameId.error,
+    });
+  }
+  try {
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const countSession = await prisma.session.groupBy({
+      by: ["userId"],
+      _count: {
+        id: true,
+      },
+      _avg: {
+        timePlayed: true,
+      },
+      where: {
+        gameId: validatedGameId.data,
+        createdAt: {
+          gte: lastWeek,
+        },
+      },
+    });
+    if (countSession.length === 0) {
+      return res.status(404).send("Game not found");
+    }
+    const sessionsData = countSession.map((s) => ({
+      numSessions: s._count.id,
+      avgSession: parseInt(s._avg.timePlayed?.toFixed(0)!),
+    }));
+    res.status(201).send(sessionsData);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Unknown error");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+//--------------------------------------------
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");

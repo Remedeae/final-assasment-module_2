@@ -1,26 +1,26 @@
-import { createApiFetch } from "../../../stores/apiFetchStore";
-import BarGraph from "../graphElements/BarGraph";
+/* import { createApiFetch } from "../../../stores/apiFetchStore";
 import { useEffect, useState } from "react";
 import type { UserAllGamesSchema } from "../../../types/graphTypes";
 import type { ChartData } from "chart.js";
+import LineGraph from "../graphElements/LineGraph";
 
 const useFetchData = createApiFetch();
 
-function AllUsersAllGames() {
-  const [dataSet, setDataSet] = useState<ChartData<"bar"> | null>();
+function AllUsersWeekly(gameId: number) {
+  const [dataSet, setDataSet] = useState<ChartData<"line"> | null>();
 
   const data = useFetchData(
-    (state) => state.data as UserAllGamesSchema[] | null
+    (state) => state.data as UserAllGamesSchema[] | null //*
   );
   const error = useFetchData((state) => state.error);
   const fetchDataSet = useFetchData((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    fetchDataSet("get", `allusers/timePlayed`);
-  }, [fetchDataSet, data]);
+    fetchDataSet("get", `allusers/${gameId}/weekly`);
+  }, [fetchDataSet, gameId]);
   //console.log(data);
 
-  useEffect(() => {
+     useEffect(() => {
     if (data) {
       setDataSet({
         labels: data.map((d) => d.gameName),
@@ -39,7 +39,8 @@ function AllUsersAllGames() {
   }
   if (dataSet)
     return (
-      <div className="userStats__allGames">{<BarGraph data={dataSet} />}</div>
+      <div className="userStats__allGames">{<LineGraph data={dataSet} />}</div>
     );
 }
-export default AllUsersAllGames;
+export default AllUsersWeekly;
+ */

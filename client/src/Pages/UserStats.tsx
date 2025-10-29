@@ -7,7 +7,7 @@ import UserAllGames from "../components/graphs/UserGraphs/AllGames";
 import UserPercentTime from "../components/graphs/UserGraphs/PercentTime";
 import AllUsersAllGames from "../components/graphs/AllUsersGraphs/AllUserGames";
 import LeaderBoard from "../components/graphs/AllUsersGraphs/LeaderBoard";
-import UserSessionData from "../components/graphs/UserGraphs/SessionData";
+import AllUserSessionData from "../components/graphs/AllUsersGraphs/SessionData";
 
 const useFetchUser = createApiFetch();
 const useFetchTimePlayed = createApiFetch();
@@ -54,8 +54,8 @@ function UserStats() {
             {user.firstName} have played for a total of {time} minutes
           </p>
         </div>
-        <UserSessionData />
         <AllUsersAllGames />
+        <AllUserSessionData />
         <LeaderBoard />
       </div>
     );
