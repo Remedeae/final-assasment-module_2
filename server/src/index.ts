@@ -7,6 +7,7 @@ import {
   sessionSchema,
   stringSchema,
 } from "./validator";
+import { useId } from "react";
 
 const prisma = new PrismaClient();
 
@@ -215,25 +216,97 @@ app.get("/user/:id/totalTime", async (req, res) => {
     await prisma.$disconnect();
   }
 });
+//Total game time across all users ------------
+app.get("/allusers/timePlayed", async (req, res) => {
+  try {
+    const sessionSums = await prisma.session.groupBy({
+      by: ["gameId"],
+      _sum: { timePlayed: true },
+    });
+    const gameIds = sessionSums.map((s) => s.gameId);
 
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, name: true },
+    });
+    const data = sessionSums.map((s) => ({
+      gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
+      totalTime: s._sum.timePlayed ?? 0,
+    }));
+    res.status(200).send(data);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+//Get Leader Board---------------------------------
+app.get("/allusers/timePlayed", async (req, res) => {
+  try {
+    const sessionSums = await prisma.session.groupBy({
+      by: ["gameId"],
+      _sum: { timePlayed: true },
+    });
+    const gameIds = sessionSums.map((s) => s.gameId);
+
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, name: true },
+    });
+    const data = sessionSums.map((s) => ({
+      gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
+      totalTime: s._sum.timePlayed ?? 0,
+    }));
+    res.status(200).send(data);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
 //Game functions----------------------------------
 
-app.get("/game/:id", async (req, res) => {
-  const gameId = parseInt(req.params.id);
-  const validatedGameId = paramIdSchema.safeParse(gameId);
-  if (!validatedGameId.success) {
-    return res
-      .status(400)
-      .send({ message: "Invalid url", error: validatedGameId.error });
-  }
+app.get("/leaderBoard", async (req, res) => {
   try {
-    const game = await prisma.game.findUnique({
-      where: { id: validatedGameId.data },
+    const maxTimes = await prisma.session.groupBy({
+      by: ["gameId"],
+      _max: { timePlayed: true },
     });
-    if (!game) {
-      res.status(404).send("Game not found");
-    }
-    res.status(200).send(game);
+    const topSessions = await prisma.session.findMany({
+      where: {
+        OR: maxTimes.map((m) => ({
+          gameId: m.gameId,
+          timePlayed: m._max.timePlayed!,
+        })),
+      },
+      select: {
+        gameId: true,
+        timePlayed: true,
+        userId: true,
+      },
+    });
+    const topPlayerIds = topSessions.map((p) => p.userId);
+    const topPlayers = await prisma.user.findMany({
+      where: { id: { in: topPlayerIds } },
+      select: { id: true, firstName: true },
+    });
+    const gameIds = topSessions.map((s) => s.gameId);
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, name: true },
+    });
+    const leaderBoard = topSessions.map((s) => ({
+      name: topPlayers.find((p) => p.id === s.userId)?.firstName,
+      game: games.find((p) => p.id === s.gameId)?.name,
+      timePlayed: s.timePlayed,
+    }));
+    res.status(200).send(leaderBoard);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -250,7 +323,7 @@ app.get("/games", async (req, res) => {
 });
 
 //Sessions functions----------------------------------
-
+//Send session to DB
 app.post("/game/:id", async (req, res) => {
   const gameId = parseInt(req.params.id);
   const validatedGameId = paramIdSchema.safeParse(gameId);
@@ -291,6 +364,45 @@ app.post("/game/:id", async (req, res) => {
 app.get("/sessions", async (req, res) => {
   const users = await prisma.session.findMany();
   res.json(users);
+});
+//Get session data for user
+app.get("/user/:userId/sessions/:gameId", async (req, res) => {
+  const gameId = parseInt(req.params.gameId);
+  const validatedGameId = paramIdSchema.safeParse(gameId);
+  if (!validatedGameId.success) {
+    res
+      .status(400)
+      .send({ message: "Invalid url", error: validatedGameId.error });
+  }
+  const userId = parseInt(req.params.userId);
+  const validatedUserId = paramIdSchema.safeParse(userId);
+  if (!validatedUserId.success) {
+    res.status(500).send({
+      message: "Invalid game ID input",
+      error: validatedUserId.error,
+    });
+  }
+  try {
+    const countSession = await prisma.session.groupBy({
+      by: ["gameId"],
+      _count: {
+        id: true,
+      },
+      where: {
+        gameId: validatedGameId.data,
+        userId: validatedUserId.data,
+      },
+    });
+    //make this into a proper object, call avarage session length
+    res.status(201).send(countSession);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Unknown error");
+  } finally {
+    await prisma.$disconnect();
+  }
 });
 
 app.listen(3000, () => {

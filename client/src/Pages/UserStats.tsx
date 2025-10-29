@@ -5,6 +5,9 @@ import type { UserSchema } from "../types/tableTypes";
 import defaultPic from "../assets/user.png";
 import UserAllGames from "../components/graphs/UserGraphs/AllGames";
 import UserPercentTime from "../components/graphs/UserGraphs/PercentTime";
+import AllUsersAllGames from "../components/graphs/AllUsersGraphs/AllUserGames";
+import LeaderBoard from "../components/graphs/AllUsersGraphs/LeaderBoard";
+import UserSessionData from "../components/graphs/UserGraphs/SessionData";
 
 const useFetchUser = createApiFetch();
 const useFetchTimePlayed = createApiFetch();
@@ -44,15 +47,16 @@ function UserStats() {
             {user.firstName} {user.lastName}
           </h2>
         </div>
-        <UserAllGames />
+        <UserAllGames playerName={user.firstName} />
         <UserPercentTime />
         <div className="userStats__totalTime">
           <p>
             {user.firstName} have played for a total of {time} minutes
           </p>
         </div>
-        <div className="userStats__sessions"></div>
-        <div className="userStats__allPlayers"></div>
+        <UserSessionData />
+        <AllUsersAllGames />
+        <LeaderBoard />
       </div>
     );
   }

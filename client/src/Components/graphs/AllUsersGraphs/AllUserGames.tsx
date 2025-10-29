@@ -2,16 +2,11 @@ import { createApiFetch } from "../../../stores/apiFetchStore";
 import BarGraph from "../graphElements/BarGraph";
 import { useEffect, useState } from "react";
 import type { UserAllGamesSchema } from "../../../types/graphTypes";
-import { useParams } from "react-router-dom";
 import type { ChartData } from "chart.js";
 
 const useFetchData = createApiFetch();
-interface Props {
-  playerName: string;
-}
 
-function UserAllGames({ playerName }: Props) {
-  const { id } = useParams();
+function AllUsersAllGames() {
   const [dataSet, setDataSet] = useState<ChartData<"bar"> | null>();
 
   const data = useFetchData(
@@ -21,8 +16,8 @@ function UserAllGames({ playerName }: Props) {
   const fetchDataSet = useFetchData((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    fetchDataSet("get", `user/${id}/allGames`);
-  }, [fetchDataSet, id, data]);
+    fetchDataSet("get", `allusers/timePlayed`);
+  }, [fetchDataSet, data]);
   //console.log(data);
 
   useEffect(() => {
@@ -31,20 +26,22 @@ function UserAllGames({ playerName }: Props) {
         labels: data.map((d) => d.gameName),
         datasets: [
           {
-            label: `Minutes played by ${playerName}`,
+            label: "Total minutes played by all player",
             data: data.map((d) => d.totalTime),
           },
         ],
       });
     }
-  }, [data, playerName]);
+  }, [data]);
 
   if (error) {
     return <div>{error}</div>;
   }
   if (dataSet)
     return (
-      <div className="userStats__allGames">{<BarGraph data={dataSet} />}</div>
+      <div className="userStats__allPlayers-timePlayed">
+        {<BarGraph data={dataSet} />}
+      </div>
     );
 }
-export default UserAllGames;
+export default AllUsersAllGames;
