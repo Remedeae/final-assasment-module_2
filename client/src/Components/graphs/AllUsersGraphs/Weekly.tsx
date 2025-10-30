@@ -16,7 +16,7 @@ function AllUsersWeekly(gameId: number) {
   const fetchDataSet = useFetchData((state) => state.apiFetchAsync);
 
   useEffect(() => {
-    fetchDataSet("get", `allusers/${gameId}/weekly`);
+    fetchDataSet("get", `weekly/${gameId}`);
   }, [fetchDataSet, gameId]);
   //console.log(data);
 

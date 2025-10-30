@@ -15,7 +15,7 @@ function Nav() {
 
   const profileNavLink = `/user/${activeUserId}`;
   return (
-    <div>
+    <div className="nav">
       <ul>
         <li>
           <Link to={profileNavLink}>Profile</Link>

@@ -70,7 +70,7 @@ function Timer() {
     <div className="timer">
       <div>
         <h2>Minutes played:</h2>
-        <h2>{timePlayed}</h2>
+        <h1>{timePlayed}</h1>
       </div>
       <button onClick={handleTimerStatus}>{timerStatusMsg}</button>
       <button onClick={handlePostSession}>Save and Exit</button>

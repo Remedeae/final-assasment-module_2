@@ -47,16 +47,22 @@ function UserStats() {
             {user.firstName} {user.lastName}
           </h2>
         </div>
-        <UserAllGames playerName={user.firstName} />
-        <UserPercentTime />
-        <div className="userStats__totalTime">
-          <p>
-            {user.firstName} have played for a total of {time} minutes
-          </p>
+        <div className="userStats__timers">
+          <UserAllGames playerName={user.firstName} />
+          <div className="userStats__totalTime">
+            <h2>
+              {user.firstName} have played for a total of{" "}
+              <strong>{time}</strong> minutes
+            </h2>
+          </div>
         </div>
-        <AllUsersAllGames />
+        <UserPercentTime />
+        <div className="userStats__allPlayersTotal">
+          <AllUsersAllGames />
+          <LeaderBoard />
+        </div>
+
         <AllUserSessionData />
-        <LeaderBoard />
       </div>
     );
   }

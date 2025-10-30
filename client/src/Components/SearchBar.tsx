@@ -17,7 +17,7 @@ function SearchBar() {
   useEffect(() => {
     if (search !== "") {
       getUsers("get", `search?q=${search}`);
-      setDisplayResults("");
+      setDisplayResults("showResults");
     } else {
       setDisplayResults("hideResults");
     }

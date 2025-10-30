@@ -56,6 +56,7 @@ function AllUserSessionData() {
               x: s.avgSession,
               y: s.numSessions,
             })),
+            backgroundColor: "rgba(128, 0, 0, 1)",
           },
         ],
       });

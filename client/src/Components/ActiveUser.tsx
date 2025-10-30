@@ -13,7 +13,7 @@ function ActiveUser() {
 
   if (activeUser) {
     return (
-      <div>
+      <div className="activeUser">
         <img
           src={activeUser.profilePic ? activeUser.profilePic : defaultPic}
           alt="Profile picture"

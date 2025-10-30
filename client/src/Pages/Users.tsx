@@ -3,14 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
 import defaultPic from "../assets/user.png";
+import { useUserStore } from "../stores/globalStore";
 
 const useFetchUsers = createApiFetch();
 
 function Users() {
   const navigate = useNavigate();
+  const activeUser = useUserStore((state) => state.activeUser);
   const users = useFetchUsers((state) => state.data as UserSchema[] | null); //Here we call the type of our data
   const error = useFetchUsers((state) => state.error);
   const fetchApi = useFetchUsers((state) => state.apiFetchAsync);
+
+  useEffect(() => {
+    if (activeUser) {
+      console.log(activeUser.id);
+    }
+  }, [activeUser]);
 
   useEffect(() => {
     fetchApi<UserSchema[]>("get", "users"); //fetches using get and the /users page
@@ -19,7 +27,8 @@ function Users() {
     return <p>{error}</p>;
   }
   return (
-    <div>
+    <div className="users">
+      <h1>Players</h1>
       <div>
         {users?.map((user) => (
           <div key={user.id} onClick={() => navigate(`/user/${user.id}`)}>

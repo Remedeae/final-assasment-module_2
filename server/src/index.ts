@@ -7,7 +7,6 @@ import {
   sessionSchema,
   stringSchema,
 } from "./validator";
-import { useId } from "react";
 
 const prisma = new PrismaClient();
 
@@ -43,8 +42,6 @@ app.post("/signup", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -70,8 +67,6 @@ app.get("/user/:id", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -100,8 +95,6 @@ app.get("/search", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -139,8 +132,6 @@ app.get("/user/:id/allGames", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 //Get percentage played for each game by userId
@@ -186,8 +177,6 @@ app.get("/user/:id/percentTime", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -212,8 +201,6 @@ app.get("/user/:id/totalTime", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 //Total game time across all users ------------
@@ -239,39 +226,42 @@ app.get("/allusers/timePlayed", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
-  }
-});
-//Get time played by all users per game---------------------------------
-app.get("/allusers/timePlayed", async (req, res) => {
-  try {
-    const sessionSums = await prisma.session.groupBy({
-      by: ["gameId"],
-      _sum: { timePlayed: true },
-    });
-    const gameIds = sessionSums.map((s) => s.gameId);
-
-    const games = await prisma.game.findMany({
-      where: { id: { in: gameIds } },
-      select: { id: true, name: true },
-    });
-    const data = sessionSums.map((s) => ({
-      gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
-      totalTime: s._sum.timePlayed ?? 0,
-    }));
-    res.status(200).send(data);
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).send(error.message);
-    }
-    res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 //Game functions----------------------------------
+//Get game based on ID
 
+app.get("/game/:id", async (req, res) => {
+  const gameId = parseInt(req.params.id);
+  const validatedGameId = paramIdSchema.safeParse(gameId);
+
+  if (!validatedGameId.success) {
+    return res.status(400).send({
+      message: "Invalid game id",
+      error: validatedGameId.error,
+    });
+  }
+
+  try {
+    const game = await prisma.game.findUnique({
+      where: { id: validatedGameId.data },
+    });
+
+    if (!game) {
+      return res.status(404).send("Game not found");
+    }
+
+    res.status(200).send(game);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    } else {
+      res.status(500).send("Unknown error");
+    }
+  }
+});
+
+//Leaderboard
 app.get("/leaderBoard", async (req, res) => {
   try {
     const maxTimes = await prisma.session.groupBy({
@@ -285,11 +275,13 @@ app.get("/leaderBoard", async (req, res) => {
           timePlayed: m._max.timePlayed!,
         })),
       },
+      distinct: ["gameId"],
       select: {
         gameId: true,
         timePlayed: true,
         userId: true,
       },
+      orderBy: { timePlayed: "desc" },
     });
     const topPlayerIds = topSessions.map((p) => p.userId);
     const topPlayers = await prisma.user.findMany({
@@ -312,8 +304,6 @@ app.get("/leaderBoard", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Error unknown");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -356,8 +346,6 @@ app.post("/game/:id", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Unknown error");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -401,12 +389,10 @@ app.get("/sessions/:gameId", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Unknown error");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 //Weekly sessions (incomplete)--------------------------------------------
-app.get("/sessions/:gameId/weekly", async (req, res) => {
+app.get("/weekly/:gameId", async (req, res) => {
   const gameId = parseInt(req.params.gameId);
   const validatedGameId = paramIdSchema.safeParse(gameId);
   if (!validatedGameId.success) {
@@ -446,12 +432,14 @@ app.get("/sessions/:gameId/weekly", async (req, res) => {
       res.status(500).send(error.message);
     }
     res.status(500).send("Unknown error");
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
 //--------------------------------------------
+
+process.on("beforeExit", async () => {
+  await prisma.$disconnect();
+});
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
