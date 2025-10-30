@@ -1,11 +1,16 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors, { CorsOptions } from "cors";
+import { z } from "zod"
 import {
+  gameSchema,
+  leaderBoardSchema,
   newUserSchema,
-  paramIdSchema,
   sessionSchema,
-  stringSchema,
+  userAllGamesSchema,
+  userPercentTimeSchema,
+  userSchema,
+  userSessionSchema,
 } from "./validator";
 
 const prisma = new PrismaClient();
@@ -21,8 +26,19 @@ app.use(cors(corsOptions));
 //Users functions----------------------------------
 
 app.get("/users", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
+  try {
+    const users = await prisma.user.findMany();
+    const validatedUser = userSchema.safeParse(users)
+    if (!validatedUser.success) {
+      return res.status(500).send({ message: "Invalid user data response." })
+    }
+    res.status(201).send(validatedUser.data);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    }
+    res.status(500).send("Error unknown");
+  }
 });
 
 app.post("/signup", async (req, res) => {
@@ -47,7 +63,7 @@ app.post("/signup", async (req, res) => {
 
 app.get("/user/:id", async (req, res) => {
   const userId = parseInt(req.params.id);
-  const validatedUserId = paramIdSchema.safeParse(userId);
+  const validatedUserId = z.number().positive().safeParse(userId);
   if (!validatedUserId.success) {
     return res.status(400).send({
       message: "Invalid user id request",
@@ -61,7 +77,11 @@ app.get("/user/:id", async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
-    res.status(200).send(user);
+    const validatedUser = userSchema.safeParse(user)
+    if (!validatedUser.success) {
+      res.status(500).send({ message: "Invalid user data response.", error: validatedUser.error })
+    }
+    res.status(200).send(validatedUser.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -73,7 +93,7 @@ app.get("/user/:id", async (req, res) => {
 app.get("/search", async (req, res) => {
   const { q } = req.query;
   try {
-    const validatedQuery = stringSchema.safeParse(q);
+    const validatedQuery = z.string().max(50, { message: "Search cannot be longer then 50 characters." }).safeParse(q);
     if (!validatedQuery.success) {
       return res.status(400).send("Invalid search term");
     }
@@ -89,7 +109,11 @@ app.get("/search", async (req, res) => {
     if (users.length === 0) {
       return res.status(400).send("No user matches the search");
     }
-    return res.status(200).send(users);
+    const validatedUser = userSchema.safeParse(users)
+    if (!validatedUser.success) {
+      res.status(500).send({ message: "Invalid user data response.", error: validatedUser.error })
+    }
+    return res.status(200).send(validatedUser.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -102,7 +126,7 @@ app.get("/search", async (req, res) => {
 //Get time played for each game by userId
 app.get("/user/:id/allGames", async (req, res) => {
   const userId = parseInt(req.params.id);
-  const validateUserId = paramIdSchema.safeParse(userId);
+  const validateUserId = z.number().positive().safeParse(userId);
   if (!validateUserId.success) {
     return res
       .status(400)
@@ -126,7 +150,11 @@ app.get("/user/:id/allGames", async (req, res) => {
       gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
       totalTime: s._sum.timePlayed ?? 0,
     }));
-    res.status(200).send(data);
+    const validatedData = userAllGamesSchema.safeParse(data)
+    if (!validatedData.success) {
+      return res.status(500).send({ message: "Invalid data response from database.", error: validatedData.error })
+    }
+    res.status(200).send(validatedData.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -137,7 +165,7 @@ app.get("/user/:id/allGames", async (req, res) => {
 //Get percentage played for each game by userId
 app.get("/user/:id/percentTime", async (req, res) => {
   const userId = parseInt(req.params.id);
-  const validateUserId = paramIdSchema.safeParse(userId);
+  const validateUserId = z.number().positive().safeParse(userId);
   if (!validateUserId.success) {
     return res
       .status(400)
@@ -171,7 +199,11 @@ app.get("/user/:id/percentTime", async (req, res) => {
       gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
       percentPlayed: s.percent,
     }));
-    res.status(200).send(data);
+    const validatedData = userPercentTimeSchema.safeParse(data)
+    if (!validatedData.success) {
+      return res.status(500).send({ message: "Invalid data response from database.", error: validatedData.error })
+    }
+    res.status(200).send(validatedData.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -183,7 +215,7 @@ app.get("/user/:id/percentTime", async (req, res) => {
 //Get total time played by userId
 app.get("/user/:id/totalTime", async (req, res) => {
   const userId = parseInt(req.params.id);
-  const validateUserId = paramIdSchema.safeParse(userId);
+  const validateUserId = z.number().positive().safeParse(userId);
   if (!validateUserId.success) {
     return res
       .status(400)
@@ -195,7 +227,14 @@ app.get("/user/:id/totalTime", async (req, res) => {
       _sum: { timePlayed: true },
     });
     const data = time._sum.timePlayed ?? 0;
-    res.status(200).send(data);
+    const validatedData = z.number().safeParse(data)
+    if (!validatedData.success) {
+      return res.status(400).send({
+        message: "Invalid user id request",
+        error: validatedData.error,
+      });
+    }
+    res.status(200).send(validatedData.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -220,7 +259,11 @@ app.get("/allusers/timePlayed", async (req, res) => {
       gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
       totalTime: s._sum.timePlayed ?? 0,
     }));
-    res.status(200).send(data);
+    const validatedData = userAllGamesSchema.safeParse(data)
+    if (!validatedData.success) {
+      return res.status(500).send({ message: "Invalid response from database.", error: validatedData.error })
+    }
+    res.status(200).send(validatedData.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -233,7 +276,7 @@ app.get("/allusers/timePlayed", async (req, res) => {
 
 app.get("/game/:id", async (req, res) => {
   const gameId = parseInt(req.params.id);
-  const validatedGameId = paramIdSchema.safeParse(gameId);
+  const validatedGameId = z.number().positive().safeParse(gameId);
 
   if (!validatedGameId.success) {
     return res.status(400).send({
@@ -250,8 +293,11 @@ app.get("/game/:id", async (req, res) => {
     if (!game) {
       return res.status(404).send("Game not found");
     }
-
-    res.status(200).send(game);
+    const validatedGame = gameSchema.safeParse(game)
+    if (!validatedGame.success) {
+      return res.status(500).send({ message: "Invalid response from database.", error: validatedGame.error })
+    }
+    res.status(200).send(validatedGame.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -298,7 +344,11 @@ app.get("/leaderBoard", async (req, res) => {
       game: games.find((p) => p.id === s.gameId)?.name,
       timePlayed: s.timePlayed,
     }));
-    res.status(200).send(leaderBoard);
+    const validatedLeaderBoard = leaderBoardSchema.safeParse(leaderBoard)
+    if (!validatedLeaderBoard.success) {
+      return res.status(500).send({ message: "Invalid response from database.", error: validatedLeaderBoard.error })
+    }
+    res.status(200).send(validatedLeaderBoard.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -316,7 +366,7 @@ app.get("/games", async (req, res) => {
 //Send session to DB
 app.post("/game/:id", async (req, res) => {
   const gameId = parseInt(req.params.id);
-  const validatedGameId = paramIdSchema.safeParse(gameId);
+  const validatedGameId = z.number().positive().safeParse(gameId);
   if (!validatedGameId.success) {
     res
       .status(400)
@@ -356,7 +406,7 @@ app.get("/sessions", async (req, res) => {
 //Get session data for all users
 app.get("/sessions/:gameId", async (req, res) => {
   const gameId = parseInt(req.params.gameId);
-  const validatedGameId = paramIdSchema.safeParse(gameId);
+  const validatedGameId = z.number().positive().safeParse(gameId);
   if (!validatedGameId.success) {
     res.status(400).send({
       message: "GameId is of invalid data type",
@@ -383,7 +433,11 @@ app.get("/sessions/:gameId", async (req, res) => {
       numSessions: s._count.id,
       avgSession: parseInt(s._avg.timePlayed?.toFixed(0)!),
     }));
-    res.status(201).send(sessionsData);
+    const validatedSession = userSessionSchema.safeParse(sessionsData)
+          if (!validatedSession.success) {
+      return res.status(500).send({ message: "Invalid response from database.", error: validatedSession.error })
+    }
+    res.status(201).send(validatedSession.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
@@ -394,7 +448,7 @@ app.get("/sessions/:gameId", async (req, res) => {
 //Weekly sessions (incomplete)--------------------------------------------
 app.get("/weekly/:gameId", async (req, res) => {
   const gameId = parseInt(req.params.gameId);
-  const validatedGameId = paramIdSchema.safeParse(gameId);
+  const validatedGameId = z.number().positive().safeParse(gameId);
   if (!validatedGameId.success) {
     res.status(400).send({
       message: "GameId is of invalid data type",
@@ -426,7 +480,11 @@ app.get("/weekly/:gameId", async (req, res) => {
       numSessions: s._count.id,
       avgSession: parseInt(s._avg.timePlayed?.toFixed(0)!),
     }));
-    res.status(201).send(sessionsData);
+    const validatedSession = userSessionSchema.safeParse(sessionsData)
+          if (!validatedSession.success) {
+      return res.status(500).send({ message: "Invalid response from database.", error: validatedSession.error })
+    }
+    res.status(201).send(validatedSession.data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).send(error.message);
