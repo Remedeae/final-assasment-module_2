@@ -27,10 +27,12 @@ app.use(cors(corsOptions));
 
 app.get("/users", async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
-    const validatedUser = userSchema.safeParse(users)
+    const users = await prisma.user.findMany({
+      where : {}
+    });
+    const validatedUser = z.array(userSchema).safeParse(users)
     if (!validatedUser.success) {
-      return res.status(500).send({ message: "Invalid user data response." })
+      return res.status(500).send({ message: "Invalid user data response.", error: validatedUser.error })
     }
     res.status(201).send(validatedUser.data);
   } catch (error) {
@@ -109,7 +111,7 @@ app.get("/search", async (req, res) => {
     if (users.length === 0) {
       return res.status(400).send("No user matches the search");
     }
-    const validatedUser = userSchema.safeParse(users)
+    const validatedUser = z.array(userSchema).safeParse(users)
     if (!validatedUser.success) {
       res.status(500).send({ message: "Invalid user data response.", error: validatedUser.error })
     }
@@ -150,7 +152,7 @@ app.get("/user/:id/allGames", async (req, res) => {
       gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
       totalTime: s._sum.timePlayed ?? 0,
     }));
-    const validatedData = userAllGamesSchema.safeParse(data)
+    const validatedData = z.array(userAllGamesSchema).safeParse(data)
     if (!validatedData.success) {
       return res.status(500).send({ message: "Invalid data response from database.", error: validatedData.error })
     }
@@ -199,7 +201,7 @@ app.get("/user/:id/percentTime", async (req, res) => {
       gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
       percentPlayed: s.percent,
     }));
-    const validatedData = userPercentTimeSchema.safeParse(data)
+    const validatedData = z.array(userPercentTimeSchema).safeParse(data)
     if (!validatedData.success) {
       return res.status(500).send({ message: "Invalid data response from database.", error: validatedData.error })
     }
@@ -259,7 +261,7 @@ app.get("/allusers/timePlayed", async (req, res) => {
       gameName: games.find((g) => g.id === s.gameId)?.name || "Unknown",
       totalTime: s._sum.timePlayed ?? 0,
     }));
-    const validatedData = userAllGamesSchema.safeParse(data)
+    const validatedData = z.array(userAllGamesSchema).safeParse(data)
     if (!validatedData.success) {
       return res.status(500).send({ message: "Invalid response from database.", error: validatedData.error })
     }
@@ -344,7 +346,7 @@ app.get("/leaderBoard", async (req, res) => {
       game: games.find((p) => p.id === s.gameId)?.name,
       timePlayed: s.timePlayed,
     }));
-    const validatedLeaderBoard = leaderBoardSchema.safeParse(leaderBoard)
+    const validatedLeaderBoard = z.array(leaderBoardSchema).safeParse(leaderBoard)
     if (!validatedLeaderBoard.success) {
       return res.status(500).send({ message: "Invalid response from database.", error: validatedLeaderBoard.error })
     }
@@ -358,8 +360,12 @@ app.get("/leaderBoard", async (req, res) => {
 });
 
 app.get("/games", async (req, res) => {
-  const users = await prisma.game.findMany();
-  res.json(users);
+  const games = await prisma.game.findMany();
+  const validatedGame = z.array(gameSchema).safeParse(games)
+  if (!validatedGame.success) {
+    res.status(500).send({message : "Invalid response from databaase", error: validatedGame.error})
+  }
+  res.status(200).send(validatedGame.data);
 });
 
 //Sessions functions----------------------------------
@@ -433,7 +439,7 @@ app.get("/sessions/:gameId", async (req, res) => {
       numSessions: s._count.id,
       avgSession: parseInt(s._avg.timePlayed?.toFixed(0)!),
     }));
-    const validatedSession = userSessionSchema.safeParse(sessionsData)
+    const validatedSession = z.array(userSessionSchema).safeParse(sessionsData)
           if (!validatedSession.success) {
       return res.status(500).send({ message: "Invalid response from database.", error: validatedSession.error })
     }

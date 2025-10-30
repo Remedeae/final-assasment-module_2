@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createApiFetch } from "../stores/apiFetchStore";
-import type { UserSchema } from "../types/tableTypes";
 import { useNavigate } from "react-router-dom";
+import type { UserSchema } from "../types/tableTypes";
 
 const useFetchSearch = createApiFetch();
 

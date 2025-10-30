@@ -1,5 +1,5 @@
 import { createApiFetch } from "../../../stores/apiFetchStore";
-import DonutChart from "../graphElements/DonutChart";
+import DonutChart from "../../../Components/graphs/graphElements/DonutChart";
 import { useEffect, useState } from "react";
 import type { UserPercentTimeSchema } from "../../../types/graphTypes";
 import { useParams } from "react-router-dom";

@@ -7,7 +7,7 @@ export const sessionSchema = z.object({
 });
 
 export const newUserSchema = z.object({
-  email: z.email().lowercase(),
+  email: z.email(),
   firstName: z
     .string()
     .min(2, { message: "Name contain at least 3 caracters." })
@@ -22,7 +22,7 @@ export const newUserSchema = z.object({
 
 export const userSchema = z.object({
   id : z.number().positive(),
-  email: z.email().lowercase(),
+  email: z.email(),
     firstName: z
     .string()
     .min(2, { message: "Name contain at least 3 caracters." })
@@ -32,9 +32,9 @@ export const userSchema = z.object({
     .min(3, { message: "Name contain at least 3 caracters." })
     .max(50, { message: "Name cannot be longer then 50 characters" })
     .optional(),
-    profilePic: z.string().optional(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
+    profilePic: z.string().optional().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
 })
 export const gameSchema = z.object({
   id: z.number().positive(),
