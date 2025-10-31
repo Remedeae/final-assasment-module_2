@@ -3,7 +3,7 @@ import { createApiFetch } from "../../../stores/apiFetchStore";
 import type { GameSchema } from "../../../types/tableTypes";
 import type { UserSessionSchema } from "../../../types/graphTypes";
 import type { ChartData } from "chart.js";
-import ScatterGraph from "../graphElements/ScatterGraph";
+import ScatterGraph from "../../../Components/graphs/graphElements/ScatterGraph";
 
 const useGetGames = createApiFetch();
 const useGetSessions = createApiFetch();

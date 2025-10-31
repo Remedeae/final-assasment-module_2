@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
 import defaultPic from "../assets/user.png";
-import UserAllGames from "../components/graphs/UserGraphs/AllGames";
-import UserPercentTime from "../components/graphs/UserGraphs/PercentTime";
-import AllUsersAllGames from "../components/graphs/AllUsersGraphs/AllUserGames";
-import LeaderBoard from "../components/graphs/AllUsersGraphs/LeaderBoard";
-import AllUserSessionData from "../components/graphs/AllUsersGraphs/SessionData";
+import UserAllGames from "../Components/graphs/UserGraphs/AllGames";
+import UserPercentTime from "../Components/graphs/UserGraphs/PercentTime";
+import AllUsersAllGames from "../Components/graphs/AllUsersGraphs/AllUserGames";
+import LeaderBoard from "../Components/graphs/AllUsersGraphs/LeaderBoard";
+import AllUserSessionData from "../Components/graphs/AllUsersGraphs/SessionData";
 
 const useFetchUser = createApiFetch();
 const useFetchTimePlayed = createApiFetch();

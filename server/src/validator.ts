@@ -43,12 +43,12 @@ export const gameSchema = z.object({
 
 export const userAllGamesSchema = z.object({
   gameName: z.string(),
-  totalTime: z.number().positive(),
+  totalTime: z.number().min(0),
 })
 
 export const userPercentTimeSchema = z.object({
   gameName: z.string(),
-  percentPlayed: z.number().positive(),
+  percentPlayed: z.number().min(0),
 });
 
 export const leaderBoardSchema = z.object({
@@ -57,10 +57,10 @@ export const leaderBoardSchema = z.object({
     .min(2, { message: "Name contain at least 3 caracters." })
     .max(50, { message: "Name cannot be longer then 50 characters" }),
   game: z.string(),
-  timePlayed: z.number().positive(),
+  timePlayed: z.number().min(0),
 });
 
 export const userSessionSchema = z.object({
-  numSessions: z.number().positive(),
-  avgSession: z.number().positive(),
+  numSessions: z.number().min(0),
+  avgSession: z.number().min(0),
 });

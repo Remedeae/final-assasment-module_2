@@ -1,5 +1,5 @@
 import { createApiFetch } from "../../../stores/apiFetchStore";
-import BarGraph from "../graphElements/BarGraph";
+import BarGraph from "../../../Components/graphs/graphElements/BarGraph"
 import { useEffect, useState } from "react";
 import type { UserAllGamesSchema } from "../../../types/graphTypes";
 import { useParams } from "react-router-dom";

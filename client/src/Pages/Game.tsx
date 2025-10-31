@@ -1,13 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { createApiFetch } from "../stores/apiFetchStore";
-import Timer from "../components/Timer";
+import Timer from "../Components/Timer";
 import type { GameSchema } from "../types/tableTypes";
 import kittenWatch from "../assets/gamePic/kitten-watch-icon.jpg";
 import watchKitten from "../assets/gamePic/watch-the-kitten-icon.jpg";
 import forest from "../assets/gamePic/forest-meditation-icon.jpg";
 import stare from "../assets/gamePic/stare-contest-icon.jpg";
-import ActiveUser from "../components/ActiveUser";
+import ActiveUser from "../Components/ActiveUser";
 
 const useGetGame = createApiFetch();
 

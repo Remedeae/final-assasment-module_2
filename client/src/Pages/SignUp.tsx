@@ -2,13 +2,12 @@ import { useState } from "react";
 import { createApiFetch } from "../stores/apiFetchStore";
 import type { UserSchema } from "../types/tableTypes";
 import { useNavigate } from "react-router-dom";
-import { useUserStore } from "../stores/globalStore";
 
 const usePostNewUser = createApiFetch();
 
 function SignUp() {
   const navigate = useNavigate();
-  const setActiveUser = useUserStore((state) => state.setActiveUser);
+  const [activeUser,setActiveUser] = useState<UserSchema | null>()
 
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
@@ -32,8 +31,9 @@ function SignUp() {
       const newUser = response?.user;
       //console.log(newUser);
       if (newUser) {
-        setActiveUser(newUser);
+        setActiveUser(newUser)
         localStorage.setItem("activeUser", JSON.stringify(newUser));
+        console.log(activeUser)
         navigate(`/user/${newUser.id}`);
       }
     } catch (err) {

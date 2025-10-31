@@ -10,7 +10,7 @@ if node is installed, and:
 
 which should return something like: 11.6.1
 if npm is installed.
-Else download nodeJS from : ///hyperlink// and follow the setup.
+Else download nodeJS from : (https://nodejs.org/en/download) and follow the setup.
 ###
 go into directory 'client':
     cd ./client

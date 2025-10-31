@@ -1,5 +1,5 @@
-import SearchBar from "./SearchBar";
-import Weather from "./Weather";
+import SearchBar from "../Components/SearchBar";
+import Weather from "../Components/Weather";
 
 function Header() {
   return (
